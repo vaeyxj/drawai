@@ -1,4 +1,4 @@
-import { API_BASE, API_KEY } from '@/constants'
+import { API_BASE, getApiKey } from '@/constants'
 import { parseImageResponse } from '@/utils/imageParser'
 import type { GenerationConfig } from '@/types'
 
@@ -32,19 +32,28 @@ export async function generateImage(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${API_KEY}`,
+      Authorization: `Bearer ${getApiKey()}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
     signal,
   })
 
+  const data = await response.json().catch(() => null)
+
   if (!response.ok) {
-    const errorText = await response.text().catch(() => '')
-    throw new Error(`请求失败 (${response.status}): ${errorText || response.statusText}`)
+    const msg = data?.error?.message || response.statusText
+    throw new Error(`请求失败 (${response.status}): ${msg}`)
   }
 
-  const data = await response.json()
+  if (data?.error) {
+    throw new Error(data.error.message || '生成失败')
+  }
+
+  if (!data) {
+    throw new Error('服务器返回了空响应')
+  }
+
   const parsed = parseImageResponse(data)
 
   if (!parsed.imageData) {

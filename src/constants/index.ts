@@ -2,7 +2,24 @@ import type { ModelOption, AspectRatio, ImageSize } from '@/types'
 
 export const API_BASE = '/api/v1beta/models'
 
-export const API_KEY = import.meta.env.VITE_API_KEY ?? ''
+const STORAGE_KEY = 'drawai_api_key'
+const DEFAULT_KEY = import.meta.env.VITE_API_KEY || 'sk-nSmwgG8taU7S1DLVvbN1vqeCcHl02IFOiSKP4UUbWFS1q4ue'
+
+export function getApiKey(): string {
+  return localStorage.getItem(STORAGE_KEY) || DEFAULT_KEY
+}
+
+export function setApiKey(key: string): void {
+  if (key.trim()) {
+    localStorage.setItem(STORAGE_KEY, key.trim())
+  } else {
+    localStorage.removeItem(STORAGE_KEY)
+  }
+}
+
+export function hasCustomApiKey(): boolean {
+  return !!localStorage.getItem(STORAGE_KEY)
+}
 
 export const MODELS: readonly ModelOption[] = [
   {
