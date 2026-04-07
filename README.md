@@ -2,6 +2,20 @@
 
 一款基于 Google Gemini 的 AI 绘图 Web 应用，专为游戏开发者和数字艺术家设计，支持 AI 图像生成、游戏素材加工和精灵图切割。
 
+## 界面预览
+
+### AI 图像生成 & 快捷 Prompt 模板
+
+支持多模型选择、多种画幅比例、参考图风格迁移，以及 20+ 分类快捷提示词模板（像素角色、场景建筑、道具物品等）。
+
+![AI 图像生成页面](docs/screenshots/generate-page.png)
+
+### 绿幕去背景 & Sprite 切割
+
+素材工作台支持绿幕自动去除（可调硬/软阈值）和精灵图切割，导出透明 PNG。
+
+![绿幕去背景工具](docs/screenshots/green-screen-removal.png)
+
 ## 功能特性
 
 ### AI 图像生成
