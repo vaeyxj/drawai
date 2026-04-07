@@ -1,4 +1,4 @@
-import { API_BASE, getApiKey } from '@/constants'
+import { buildApiUrl, buildAuthHeaders, getApiKey } from '@/constants'
 import { parseImageResponse } from '@/utils/imageParser'
 import type { GenerationConfig } from '@/types'
 
@@ -11,11 +11,11 @@ export async function generateImage(
   config: GenerationConfig,
   signal?: AbortSignal,
 ): Promise<GenerateResult> {
-  const url = `${API_BASE}/${config.model}:generateContent`
+  const url = buildApiUrl(config.model)
+  const apiKey = getApiKey()
 
   const parts: Array<Record<string, unknown>> = []
 
-  // Add reference image first if provided (Gemini expects image before text)
   if (config.referenceImage) {
     const base64 = config.referenceImage.dataUrl.replace(/^data:[^;]+;base64,/, '')
     parts.push({
@@ -46,10 +46,7 @@ export async function generateImage(
 
   const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${getApiKey()}`,
-      'Content-Type': 'application/json',
-    },
+    headers: buildAuthHeaders(apiKey),
     body: JSON.stringify(body),
     signal,
   })

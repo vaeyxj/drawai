@@ -1,24 +1,75 @@
 import type { ModelOption, AspectRatio, ImageSize } from '@/types'
 
-export const API_BASE = '/api/v1beta/models'
+const API_KEY_STORAGE = 'drawai_api_key'
+const BASE_URL_STORAGE = 'drawai_base_url'
 
-const STORAGE_KEY = 'drawai_api_key'
-const DEFAULT_KEY = import.meta.env.VITE_API_KEY || 'sk-nSmwgG8taU7S1DLVvbN1vqeCcHl02IFOiSKP4UUbWFS1q4ue'
+const DEFAULT_KEY = import.meta.env.VITE_API_KEY || ''
+const DEFAULT_BASE_URL = import.meta.env.VITE_BASE_URL || ''
+
+const OFFICIAL_GEMINI_BASE = 'https://generativelanguage.googleapis.com'
+const PROXY_API_PATH = '/api/v1beta/models'
+
+export function isOfficialKey(key: string): boolean {
+  return key.startsWith('AIza')
+}
 
 export function getApiKey(): string {
-  return localStorage.getItem(STORAGE_KEY) || DEFAULT_KEY
+  return localStorage.getItem(API_KEY_STORAGE) || DEFAULT_KEY
 }
 
 export function setApiKey(key: string): void {
   if (key.trim()) {
-    localStorage.setItem(STORAGE_KEY, key.trim())
+    localStorage.setItem(API_KEY_STORAGE, key.trim())
   } else {
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(API_KEY_STORAGE)
   }
 }
 
 export function hasCustomApiKey(): boolean {
-  return !!localStorage.getItem(STORAGE_KEY)
+  return !!localStorage.getItem(API_KEY_STORAGE)
+}
+
+export function getBaseUrl(): string {
+  return localStorage.getItem(BASE_URL_STORAGE) || DEFAULT_BASE_URL
+}
+
+export function setBaseUrl(url: string): void {
+  if (url.trim()) {
+    localStorage.setItem(BASE_URL_STORAGE, url.trim().replace(/\/+$/, ''))
+  } else {
+    localStorage.removeItem(BASE_URL_STORAGE)
+  }
+}
+
+export function hasCustomBaseUrl(): boolean {
+  return !!localStorage.getItem(BASE_URL_STORAGE)
+}
+
+export function buildApiUrl(model: string): string {
+  const key = getApiKey()
+  const customBase = getBaseUrl()
+
+  if (customBase) {
+    // Custom base URL: append Gemini path directly
+    const base = `${customBase}/v1beta/models/${model}:generateContent`
+    return isOfficialKey(key) ? `${base}?key=${key}` : base
+  }
+
+  if (isOfficialKey(key)) {
+    // Official Gemini key without custom base → use official endpoint
+    return `${OFFICIAL_GEMINI_BASE}/v1beta/models/${model}:generateContent?key=${key}`
+  }
+
+  // Proxy key without custom base → use Vite proxy path
+  return `${PROXY_API_PATH}/${model}:generateContent`
+}
+
+export function buildAuthHeaders(key: string): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (!isOfficialKey(key)) {
+    headers['Authorization'] = `Bearer ${key}`
+  }
+  return headers
 }
 
 export const MODELS: readonly ModelOption[] = [

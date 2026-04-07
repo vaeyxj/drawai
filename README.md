@@ -45,15 +45,26 @@
 npm install
 ```
 
-### 配置 API Key
+### 配置 API
+
+支持 Google Gemini 官方 Key 和第三方中转 Key，可通过 `.env` 文件或应用内设置弹窗配置。
 
 在项目根目录创建 `.env` 文件：
 
 ```env
+# 官方 Gemini Key (AIza 开头) 或中转 Key (sk- 开头)
 VITE_API_KEY=your_api_key_here
+
+# 可选：自定义 Base URL（中转服务地址，不填则使用默认地址）
+VITE_BASE_URL=https://your-proxy.com
 ```
 
-也可以在应用内通过设置弹窗配置自定义 API Key。
+| Key 类型 | 格式 | 认证方式 | 默认 Base URL |
+|----------|------|----------|---------------|
+| 官方 Gemini | `AIza...` | Query 参数 `?key=` | `https://generativelanguage.googleapis.com` |
+| 中转 Key | `sk-...` | Header `Authorization: Bearer` | 内置代理地址 |
+
+未配置 `.env` 时，需要在应用内通过设置弹窗配置 API Key 后才能使用生成功能。
 
 ### 开发模式
 
