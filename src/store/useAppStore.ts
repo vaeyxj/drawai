@@ -1,6 +1,7 @@
 import { create } from 'zustand'
-import type { ModelId, AspectRatio, ImageSize, GeneratedImage, ToastMessage } from '@/types'
+import type { ModelId, AspectRatio, ImageSize, GeneratedImage, ToastMessage, ReferenceImage } from '@/types'
 import { generateImage } from '@/services/api'
+import { ASSET_MODE_PROMPT_SUFFIX, ASSET_PRESETS } from '@/constants/assetPresets'
 import { saveImage, loadAllImages, toggleFavorite as toggleFav, deleteImage as delImage, clearAllImages } from '@/utils/storage'
 
 interface AppState {
@@ -14,11 +15,17 @@ interface AppState {
   history: GeneratedImage[]
   toasts: ToastMessage[]
   abortController: AbortController | null
+  assetMode: boolean
+  assetPresetId: string | null
+  referenceImage: ReferenceImage | null
 
   setPrompt: (prompt: string) => void
   setModel: (model: ModelId) => void
   setAspectRatio: (ratio: AspectRatio) => void
   setImageSize: (size: ImageSize) => void
+  setAssetMode: (enabled: boolean) => void
+  setAssetPresetId: (id: string | null) => void
+  setReferenceImage: (image: ReferenceImage | null) => void
   generate: () => Promise<void>
   cancelGeneration: () => void
   toggleFavorite: (id: string) => void
@@ -40,17 +47,36 @@ export const useAppStore = create<AppState>((set, get) => ({
   history: [],
   toasts: [],
   abortController: null,
+  assetMode: false,
+  assetPresetId: null,
+  referenceImage: null,
 
   setPrompt: (prompt) => set({ prompt }),
   setModel: (model) => set({ model }),
   setAspectRatio: (aspectRatio) => set({ aspectRatio }),
   setImageSize: (imageSize) => set({ imageSize }),
+  setAssetMode: (assetMode) => set({ assetMode, assetPresetId: assetMode ? get().assetPresetId : null }),
+  setAssetPresetId: (assetPresetId) => set({ assetPresetId }),
+  setReferenceImage: (referenceImage) => set({ referenceImage }),
 
   generate: async () => {
-    const { prompt, model, aspectRatio, imageSize } = get()
+    const { prompt, model, aspectRatio, imageSize, assetMode, assetPresetId, referenceImage } = get()
     if (!prompt.trim()) {
       get().addToast('error', '请输入描述文字')
       return
+    }
+
+    // Build final prompt with asset mode enhancements
+    let finalPrompt = prompt.trim()
+    if (assetMode) {
+      const preset = assetPresetId
+        ? ASSET_PRESETS.find((p) => p.id === assetPresetId)
+        : null
+      if (preset) {
+        finalPrompt = `${finalPrompt}\n\n${preset.promptSuffix}`
+      } else {
+        finalPrompt = `${finalPrompt}\n\n${ASSET_MODE_PROMPT_SUFFIX}`
+      }
     }
 
     const controller = new AbortController()
@@ -58,7 +84,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     try {
       const result = await generateImage(
-        { prompt: prompt.trim(), model, aspectRatio, imageSize },
+        {
+          prompt: finalPrompt,
+          model,
+          aspectRatio,
+          imageSize,
+          referenceImage: referenceImage ?? undefined,
+        },
         controller.signal,
       )
 

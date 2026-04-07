@@ -6,6 +6,7 @@ import MobileNav from './components/layout/MobileNav'
 import GeneratePage from './pages/GeneratePage'
 import GalleryPage from './pages/GalleryPage'
 import FavoritesPage from './pages/FavoritesPage'
+import AssetsPage from './pages/AssetsPage'
 import Toast from './components/ui/Toast'
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/" element={<GeneratePage />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/assets" element={<AssetsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

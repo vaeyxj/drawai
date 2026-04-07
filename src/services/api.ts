@@ -13,11 +13,26 @@ export async function generateImage(
 ): Promise<GenerateResult> {
   const url = `${API_BASE}/${config.model}:generateContent`
 
+  const parts: Array<Record<string, unknown>> = []
+
+  // Add reference image first if provided (Gemini expects image before text)
+  if (config.referenceImage) {
+    const base64 = config.referenceImage.dataUrl.replace(/^data:[^;]+;base64,/, '')
+    parts.push({
+      inlineData: {
+        mimeType: config.referenceImage.mimeType,
+        data: base64,
+      },
+    })
+  }
+
+  parts.push({ text: config.prompt })
+
   const body = {
     contents: [
       {
         role: 'user',
-        parts: [{ text: config.prompt }],
+        parts,
       },
     ],
     generationConfig: {

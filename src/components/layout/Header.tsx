@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Sparkles, Images, Heart, Settings } from 'lucide-react'
+import { Sparkles, Images, Heart, Settings, Gamepad2 } from 'lucide-react'
 import ApiKeyModal from '@/components/settings/ApiKeyModal'
 import { useAppStore } from '@/store/useAppStore'
 
@@ -8,6 +8,7 @@ const navItems = [
   { to: '/', icon: Sparkles, label: '生成' },
   { to: '/gallery', icon: Images, label: '画廊' },
   { to: '/favorites', icon: Heart, label: '收藏' },
+  { to: '/assets', icon: Gamepad2, label: '素材' },
 ]
 
 export default function Header() {

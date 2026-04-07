@@ -13,11 +13,17 @@ export type AspectRatio = '1:1' | '16:9' | '9:16' | '4:3' | '3:4'
 
 export type ImageSize = '1k' | '2k'
 
+export interface ReferenceImage {
+  readonly dataUrl: string
+  readonly mimeType: string
+}
+
 export interface GenerationConfig {
   readonly model: ModelId
   readonly prompt: string
   readonly aspectRatio: AspectRatio
   readonly imageSize: ImageSize
+  readonly referenceImage?: ReferenceImage
 }
 
 export interface GeneratedImage {
@@ -36,4 +42,25 @@ export interface ToastMessage {
   readonly id: string
   readonly type: 'success' | 'error' | 'info'
   readonly message: string
+}
+
+// Game asset types
+export type AssetCategory = 'character' | 'prop' | 'scene' | 'ui' | 'effect' | 'other'
+
+export interface GameAsset {
+  readonly id: string
+  readonly name: string
+  readonly category: AssetCategory
+  readonly originalDataUrl: string
+  readonly transparentDataUrl: string | null
+  readonly sourceImageId: string | null // link to GeneratedImage if imported from gallery
+  readonly createdAt: number
+}
+
+export interface AssetPreset {
+  readonly id: string
+  readonly name: string
+  readonly description: string
+  readonly category: AssetCategory
+  readonly promptSuffix: string
 }

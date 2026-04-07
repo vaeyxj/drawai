@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { Sparkles, Images, Heart } from 'lucide-react'
+import { Sparkles, Images, Heart, Gamepad2 } from 'lucide-react'
 
 const navItems = [
   { to: '/', icon: Sparkles, label: '生成' },
   { to: '/gallery', icon: Images, label: '画廊' },
   { to: '/favorites', icon: Heart, label: '收藏' },
+  { to: '/assets', icon: Gamepad2, label: '素材' },
 ]
 
 export default function MobileNav() {
